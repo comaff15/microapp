@@ -1,0 +1,56 @@
+<div id="notifications-table">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Routing key</th>
+        <th>Попытка</th>
+        <th>Статус</th>
+        <th>DLQ</th>
+        <th>Создано</th>
+        <th>Ошибка</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for n in notifications %}
+        <tr>
+          <td><code>{{ n.id }}</code></td>
+          <td><code>{{ n.routing_key }}</code></td>
+          <td>{{ n.attempt }}</td>
+          <td>
+            {% if n.status == 'sent' %}
+              <span class="badge success">sent</span>
+            {% elif n.status == 'failed' %}
+              <span class="badge danger">failed</span>
+            {% else %}
+              <span class="badge">{{ n.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ n.is_dead_letter }}</td>
+          <td class="muted">{{ n.created_at }}</td>
+          <td class="muted">{{ n.error or '' }}</td>
+        </tr>
+        <tr>
+          <td colspan="7">
+            <pre style="white-space: pre-wrap; margin: 0">{{ n.payload_json }}</pre>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if notifications|length > 0 %}
+    <div style="margin-top: 12px" class="row">
+      <button
+        class="primary"
+        hx-get="/admin/notifications?limit={{ limit }}{% if status %}&status={{ status }}{% endif %}&before_id={{ notifications[-1].id }}"
+        hx-target="#notifications-table"
+        hx-swap="outerHTML">
+        Загрузить ещё
+      </button>
+      <span class="muted">Показано: {{ notifications|length }}</span>
+    </div>
+  {% else %}
+    <p class="muted">Логи уведомлений пока пустые.</p>
+  {% endif %}
+</div>

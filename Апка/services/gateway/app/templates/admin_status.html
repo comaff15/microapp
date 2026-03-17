@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Админка — Статус сервисов</h1>
+  <p class="muted">Health endpoints собраны здесь, чтобы главная страница оставалась простой.</p>
+
+  <div class="grid" style="margin-top: 16px">
+    <div class="card">
+      <h2 style="margin-top: 0">Users</h2>
+      <div class="row" style="margin-top: 10px">
+        {% if users.http_status == 200 %}
+          <span class="badge success">работает</span>
+        {% else %}
+          <span class="badge danger">не работает</span>
+        {% endif %}
+        <span class="badge">HTTP {{ users.http_status }}</span>
+      </div>
+      <pre style="white-space: pre-wrap; margin: 12px 0 0">{{ users | tojson(indent=2) }}</pre>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top: 0">Tasks</h2>
+      <div class="row" style="margin-top: 10px">
+        {% if tasks.http_status == 200 %}
+          <span class="badge success">работает</span>
+        {% else %}
+          <span class="badge danger">не работает</span>
+        {% endif %}
+        <span class="badge">HTTP {{ tasks.http_status }}</span>
+      </div>
+      <pre style="white-space: pre-wrap; margin: 12px 0 0">{{ tasks | tojson(indent=2) }}</pre>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top: 0">Audit</h2>
+      <div class="row" style="margin-top: 10px">
+        {% if audit.http_status == 200 %}
+          <span class="badge success">работает</span>
+        {% else %}
+          <span class="badge danger">не работает</span>
+        {% endif %}
+        <span class="badge">HTTP {{ audit.http_status }}</span>
+      </div>
+      <pre style="white-space: pre-wrap; margin: 12px 0 0">{{ audit | tojson(indent=2) }}</pre>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top: 0">Notifier</h2>
+      <div class="row" style="margin-top: 10px">
+        {% if notifier.http_status == 200 %}
+          <span class="badge success">работает</span>
+        {% else %}
+          <span class="badge danger">не работает</span>
+        {% endif %}
+        <span class="badge">HTTP {{ notifier.http_status }}</span>
+      </div>
+      <pre style="white-space: pre-wrap; margin: 12px 0 0">{{ notifier | tojson(indent=2) }}</pre>
+    </div>
+  </div>
+{% endblock %}

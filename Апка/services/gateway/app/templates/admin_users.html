@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Админка — Пользователи</h1>
+
+  <div class="card">
+    <p class="muted" style="margin-top: 0">Управление ролями и активностью.</p>
+    {% include "admin_users_table.html" %}
+  </div>
+{% endblock %}

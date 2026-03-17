@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Админка — Уведомления</h1>
+
+  <div class="card">
+    <form class="row"
+          hx-get="/admin/notifications"
+          hx-target="#notifications-table"
+          hx-select="#notifications-table"
+          hx-swap="outerHTML">
+      <div style="min-width: 220px;">
+        <label>Статус</label>
+        <select name="status">
+          <option value="" {% if not status %}selected{% endif %}>любой</option>
+          <option value="sent" {% if status == 'sent' %}selected{% endif %}>sent</option>
+          <option value="failed" {% if status == 'failed' %}selected{% endif %}>failed</option>
+          <option value="dead" {% if status == 'dead' %}selected{% endif %}>dead</option>
+        </select>
+      </div>
+      <div style="min-width: 140px;">
+        <label>Лимит</label>
+        <input name="limit" type="number" min="1" max="500" value="{{ limit }}" />
+      </div>
+      <div style="margin-top: 28px;">
+        <button class="primary" type="submit">Применить</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    {% include "admin_notifications_table.html" %}
+  </div>
+{% endblock %}

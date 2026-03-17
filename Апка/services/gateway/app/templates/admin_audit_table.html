@@ -1,0 +1,37 @@
+<div id="audit-table">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Routing key</th>
+        <th>Получено</th>
+        <th>Payload</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in events %}
+        <tr>
+          <td><code>{{ e.id }}</code></td>
+          <td><code>{{ e.routing_key }}</code></td>
+          <td class="muted">{{ e.received_at }}</td>
+          <td><pre style="white-space: pre-wrap; margin: 0">{{ e.payload_json }}</pre></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if events|length > 0 %}
+    <div style="margin-top: 12px" class="row">
+      <button
+        class="primary"
+        hx-get="/admin/audit?limit={{ limit }}{% if routing_key %}&routing_key={{ routing_key }}{% endif %}&before_id={{ events[-1].id }}"
+        hx-target="#audit-table"
+        hx-swap="outerHTML">
+        Загрузить ещё
+      </button>
+      <span class="muted">Показано: {{ events|length }}</span>
+    </div>
+  {% else %}
+    <p class="muted">События не найдены.</p>
+  {% endif %}
+</div>

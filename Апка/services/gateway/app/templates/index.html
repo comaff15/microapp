@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title" style="margin-top: 18px">VolkovApp</h1>
+  <p class="muted" style="margin-top: 0">
+    Микросервисный менеджер проектов и задач: UI, RBAC, ACL, теги, архив, аудит и события.
+  </p>
+
+  <div class="card" style="margin-top: 14px">
+    <div class="row">
+      {% if current_user %}
+        <a href="/projects">Открыть проекты</a>
+        <a href="/admin">Админка</a>
+      {% else %}
+        <a href="/login">Вход</a>
+        <a href="/register">Регистрация</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 16px">
+    <div class="card">
+      <h2>Стек</h2>
+      <p class="muted" style="margin: 0">
+        FastAPI + Jinja2 + HTMX, микросервисная архитектура, RabbitMQ события.
+      </p>
+      <div class="row" style="margin-top: 12px">
+        <span class="badge">fastapi</span>
+        <span class="badge">htmx</span>
+        <span class="badge">rabbitmq</span>
+        <span class="badge">postgres</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Возможности</h2>
+      <p class="muted" style="margin: 0">
+        Проекты и задачи, статусы, теги, архивирование, участники и роли.
+      </p>
+      <div class="row" style="margin-top: 12px">
+        <span class="badge primary">rbac</span>
+        <span class="badge">acl</span>
+        <span class="badge">audit</span>
+        <span class="badge">notifier</span>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,225 @@
+name: VolkovApp
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:8.6-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  rabbitmq:
+    image: rabbitmq:4.2.4-management
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  users:
+    build:
+      context: ./services/users
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: users
+      PORT: "8001"
+      DATABASE_URL: postgresql+asyncpg://app:app@postgres:5432/app
+      ADMIN_EMAIL: admin@local.ru
+      ADMIN_PASSWORD: adminadmin
+    ports:
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=2).read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  tasks:
+    build:
+      context: ./services/tasks
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: tasks
+      PORT: "8002"
+      DATABASE_URL: postgresql+asyncpg://app:app@postgres:5432/app
+      REDIS_URL: redis://redis:6379/0
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "127.0.0.1:8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health', timeout=2).read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  audit:
+    build:
+      context: ./services/audit
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: audit
+      PORT: "8003"
+      DATABASE_URL: postgresql+asyncpg://app:app@postgres:5432/app
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      EVENTS_EXCHANGE: events
+    ports:
+      - "127.0.0.1:8003:8003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health', timeout=2).read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+
+  notifier:
+    build:
+      context: ./services/notifier
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: notifier
+      PORT: "8004"
+      DATABASE_URL: postgresql+asyncpg://app:app@postgres:5432/app
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      EVENTS_EXCHANGE: events
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    ports:
+      - "127.0.0.1:8004:8004"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health', timeout=2).read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+
+  gateway:
+    build:
+      context: ./services/gateway
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: gateway
+      PORT: "8000"
+      USERS_URL: http://users:8001
+      TASKS_URL: http://tasks:8002
+      AUDIT_URL: http://audit:8003
+      NOTIFIER_URL: http://notifier:8004
+    ports:
+      - "8000:8000"
+    depends_on:
+      users:
+        condition: service_healthy
+      tasks:
+        condition: service_healthy
+      audit:
+        condition: service_healthy
+      notifier:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2).read()"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    profiles: ["tests"]
+    environment:
+      GATEWAY_URL: http://gateway:8000
+      USERS_URL: http://users:8001
+      TASKS_URL: http://tasks:8002
+      AUDIT_URL: http://audit:8003
+      NOTIFIER_URL: http://notifier:8004
+      ADMIN_EMAIL: admin@local.ru
+      ADMIN_PASSWORD: adminadmin
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: app
+      PGPASSWORD: app
+      PGDATABASE: app
+    depends_on:
+      gateway:
+        condition: service_healthy
+    volumes:
+      - ./allure-results:/app/allure-results
+
+  locust:
+    build:
+      context: .
+      dockerfile: perf/Dockerfile
+    profiles: ["perf"]
+    environment:
+      GATEWAY_URL: http://gateway:8000
+      TASKS_URL: http://tasks:8002
+    ports:
+      - "8089:8089"
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+  allure:
+    image: frankescobar/allure-docker-service:2.27.0
+    profiles: ["allure"]
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 3
+      KEEP_HISTORY: 1
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./allure-reports:/app/default-reports
+    ports:
+      - "5050:5050"
+
+  allure-ui:
+    image: frankescobar/allure-docker-service-ui:7.0.3
+    profiles: ["allure"]
+    environment:
+      ALLURE_DOCKER_PUBLIC_API_URL: http://localhost:5050
+    ports:
+      - "5252:5252"
+    depends_on:
+      - allure
+
+volumes:
+  pg_data:

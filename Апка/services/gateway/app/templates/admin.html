@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Админка</h1>
+  <div class="card">
+    <div class="row">
+      <a href="/admin/status">Статус сервисов</a>
+      <a href="/admin/audit">Аудит</a>
+      <a href="/admin/notifications">Уведомления</a>
+      <a href="/admin/users">Пользователи</a>
+    </div>
+    <p class="muted" style="margin-top: 10px">Раздел для мониторинга и управления системой.</p>
+  </div>
+{% endblock %}

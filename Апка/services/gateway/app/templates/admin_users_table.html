@@ -1,0 +1,69 @@
+<div id="users-table">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Роль</th>
+        <th>Активен</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+        <tr>
+          <td><code>{{ u.id }}</code></td>
+          <td><code>{{ u.email }}</code></td>
+          <td>
+            {% if u.role == "admin" %}
+              <span class="badge primary">admin</span>
+            {% else %}
+              <span class="badge">user</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge success">активен</span>
+            {% else %}
+              <span class="badge danger">отключен</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="row">
+              <form hx-post="/admin/users/{{ u.id }}" hx-target="#users-table" hx-swap="outerHTML" style="margin:0">
+                <input type="hidden" name="role" value="admin" />
+                <button class="primary" type="submit">Сделать админом</button>
+              </form>
+              <form hx-post="/admin/users/{{ u.id }}" hx-target="#users-table" hx-swap="outerHTML" style="margin:0">
+                <input type="hidden" name="role" value="user" />
+                <button type="submit">Сделать пользователем</button>
+              </form>
+              <form hx-post="/admin/users/{{ u.id }}" hx-target="#users-table" hx-swap="outerHTML" style="margin:0">
+                <input type="hidden" name="is_active" value="false" />
+                <button class="danger" type="submit">Отключить</button>
+              </form>
+              <form hx-post="/admin/users/{{ u.id }}" hx-target="#users-table" hx-swap="outerHTML" style="margin:0">
+                <input type="hidden" name="is_active" value="true" />
+                <button class="success" type="submit">Включить</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if users|length > 0 %}
+    <div style="margin-top: 12px" class="row">
+      <button
+        hx-get="/admin/users?limit={{ limit }}&before_id={{ users[-1].id }}"
+        hx-target="#users-table"
+        hx-swap="outerHTML">
+        Загрузить ещё
+      </button>
+      <span class="muted">Показано: {{ users|length }}</span>
+    </div>
+  {% else %}
+    <p class="muted">Пользователи не найдены.</p>
+  {% endif %}
+</div>

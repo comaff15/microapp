@@ -1,0 +1,41 @@
+<tr id="task-row-{{ t.id }}">
+  <td><code>{{ t.id }}</code></td>
+  <td colspan="5">
+    <form class="row" style="width: 100%"
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/edit"
+          hx-target="#task-row-{{ t.id }}"
+          hx-swap="outerHTML">
+      <div style="flex: 1; min-width: 220px;">
+        <label>Заголовок</label>
+        <input name="title" value="{{ t.title }}" required />
+      </div>
+      <div style="flex: 2; min-width: 260px;">
+        <label>Описание</label>
+        <input name="description" value="{{ t.description or '' }}" />
+      </div>
+      <div style="min-width: 140px;">
+        <label>Приоритет</label>
+        <select name="priority">
+          <option value="low" {% if t.priority == 'low' %}selected{% endif %}>low</option>
+          <option value="medium" {% if t.priority == 'medium' %}selected{% endif %}>medium</option>
+          <option value="high" {% if t.priority == 'high' %}selected{% endif %}>high</option>
+        </select>
+      </div>
+      <div style="min-width: 220px;">
+        <label>Теги</label>
+        <input name="tags" value="{{ t.tags | join(',') if t.tags else '' }}" />
+      </div>
+      <div style="margin-top: 28px;">
+        <button class="primary" type="submit">Сохранить</button>
+      </div>
+      <div style="margin-top: 28px;">
+        <button
+          type="button"
+          hx-get="/projects/{{ t.project_id }}/tasks/{{ t.id }}/row"
+          hx-target="#task-row-{{ t.id }}"
+          hx-swap="outerHTML">Отмена</button>
+      </div>
+    </form>
+  </td>
+  <td></td>
+</tr>

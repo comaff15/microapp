@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="auth-shell">
+    <h1 class="page-title">Регистрация</h1>
+    <p class="muted">Используйте корректный email (например <code>user@example.com</code>).</p>
+
+    <div class="card" style="margin-top: 14px">
+      <form method="post" action="/register">
+        <label>Email</label>
+        <input name="email" type="email" required placeholder="you@example.com" />
+
+        <label>Пароль</label>
+        <input name="password" type="password" required minlength="8" placeholder="Минимум 8 символов" />
+
+        {% if error %}
+          <div class="alert danger">{{ error }}</div>
+        {% endif %}
+
+        <div style="margin-top: 14px" class="row">
+          <button class="primary" type="submit">Создать аккаунт</button>
+          <span class="spacer"></span>
+          <span class="muted">Уже есть аккаунт? <a href="/login">Войти</a></span>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Проекты</h1>
+
+  {% if error %}
+    <div class="alert danger">{{ error }}</div>
+  {% endif %}
+
+  <div class="grid">
+    <div class="card">
+      <h2>Создать проект</h2>
+      <form hx-post="/projects" hx-target="#projects-table" hx-swap="outerHTML">
+        <label>Название</label>
+        <input name="name" required placeholder="например: Internal Tools" />
+        <div style="margin-top: 12px" class="row">
+          <button class="primary" type="submit">Создать</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Список</h2>
+      {% include "projects_table.html" %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row" style="margin-top: 14px">
+    <div>
+      <h1 class="page-title" style="margin: 10px 2px 6px">Проект #{{ project.id }} — {{ project.name }}</h1>
+      <p class="muted" style="margin: 0">Владелец: <code>{{ project.owner_email }}</code></p>
+    </div>
+    <span class="spacer"></span>
+    <a href="/projects/{{ project.id }}/members">Участники</a>
+  </div>
+
+  {% if error %}
+    <div class="alert danger">{{ error }}</div>
+  {% endif %}
+
+  <div class="grid">
+    <div class="card">
+      <h2>Создать задачу</h2>
+      <form hx-post="/projects/{{ project.id }}/tasks" hx-target="#tasks-table" hx-swap="outerHTML">
+        <label>Заголовок</label>
+        <input name="title" required placeholder="например: Исправить баг логина" />
+
+        <label>Описание</label>
+        <textarea name="description" rows="4"></textarea>
+
+        <label>Приоритет</label>
+        <select name="priority">
+          <option value="low">low</option>
+          <option value="medium" selected>medium</option>
+          <option value="high">high</option>
+        </select>
+
+        <label>Теги (через запятую)</label>
+        <input name="tags" placeholder="bug,urgent,backend" />
+
+        <div style="margin-top: 12px" class="row">
+          <button class="primary" type="submit">Создать</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Задачи</h2>
+      <form class="row" style="margin-bottom: 12px"
+            hx-get="/projects/{{ project.id }}/tasks"
+            hx-target="#tasks-table"
+            hx-swap="outerHTML">
+        <div style="min-width: 160px;">
+          <label>Статус</label>
+          <select name="status">
+            <option value="" selected>любой</option>
+            <option value="todo">todo</option>
+            <option value="in_progress">in_progress</option>
+            <option value="done">done</option>
+            <option value="canceled">canceled</option>
+          </select>
+        </div>
+        <div style="min-width: 160px;">
+          <label>Приоритет</label>
+          <select name="priority">
+            <option value="" selected>любой</option>
+            <option value="low">low</option>
+            <option value="medium">medium</option>
+            <option value="high">high</option>
+          </select>
+        </div>
+        <div style="flex: 1; min-width: 220px;">
+          <label>Поиск</label>
+          <input name="q" placeholder="по заголовку..." />
+        </div>
+        <div style="min-width: 180px;">
+          <label>Тег</label>
+          <input name="tag" placeholder="bug" />
+        </div>
+        <div style="min-width: 200px; margin-top: 28px">
+          <label style="margin: 0">
+            <input type="checkbox" name="include_archived" value="1" />
+            показывать архив
+          </label>
+        </div>
+        <div style="margin-top: 28px;">
+          <button class="primary" type="submit">Применить</button>
+        </div>
+      </form>
+      {% include "tasks_table.html" %}
+    </div>
+  </div>
+{% endblock %}

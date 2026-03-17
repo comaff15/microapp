@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Доступ запрещён</h1>
+  <div class="card">
+    <div class="alert danger">У вас нет доступа к этому разделу.</div>
+    <p class="muted">Требуемая роль: <code>admin</code></p>
+    <p><a href="/">На главную</a></p>
+  </div>
+{% endblock %}

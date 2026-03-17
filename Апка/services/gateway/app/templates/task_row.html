@@ -1,0 +1,66 @@
+<tr id="task-row-{{ t.id }}">
+  <td><code>{{ t.id }}</code></td>
+  <td>{{ t.title }}</td>
+  <td><span class="badge">{{ t.status }}</span></td>
+  <td><span class="badge">{{ t.priority }}</span></td>
+  <td>
+    {% if t.tags %}
+      <code>{{ t.tags | join(',') }}</code>
+    {% else %}
+      <span class="muted">—</span>
+    {% endif %}
+  </td>
+  <td>
+    {% if t.is_archived %}
+      <span class="badge danger">да</span>
+    {% else %}
+      <span class="badge success">нет</span>
+    {% endif %}
+  </td>
+  <td>
+    <div class="row">
+      <button
+        hx-get="/projects/{{ t.project_id }}/tasks/{{ t.id }}/edit"
+        hx-target="#task-row-{{ t.id }}"
+        hx-swap="outerHTML">Править</button>
+
+      {% if t.is_archived %}
+        <button
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/restore"
+          hx-target="#tasks-table"
+          hx-swap="outerHTML" class="success">Восстановить</button>
+      {% else %}
+        <button
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/archive"
+          hx-target="#tasks-table"
+          hx-swap="outerHTML" class="danger">В архив</button>
+      {% endif %}
+
+      {% if (not t.is_archived) and t.status == 'todo' %}
+        <button
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/status"
+          hx-vals='{"status": "in_progress"}'
+          hx-target="#tasks-table"
+          hx-swap="outerHTML" class="primary">Старт</button>
+        <button
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/status"
+          hx-vals='{"status": "canceled"}'
+          hx-target="#tasks-table"
+          hx-swap="outerHTML" class="danger">Отмена</button>
+      {% elif (not t.is_archived) and t.status == 'in_progress' %}
+        <button
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/status"
+          hx-vals='{"status": "done"}'
+          hx-target="#tasks-table"
+          hx-swap="outerHTML" class="success">Готово</button>
+        <button
+          hx-post="/projects/{{ t.project_id }}/tasks/{{ t.id }}/status"
+          hx-vals='{"status": "canceled"}'
+          hx-target="#tasks-table"
+          hx-swap="outerHTML" class="danger">Отмена</button>
+      {% else %}
+        <span class="muted">—</span>
+      {% endif %}
+    </div>
+  </td>
+</tr>

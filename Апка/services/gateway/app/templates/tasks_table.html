@@ -1,0 +1,18 @@
+<table id="tasks-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Заголовок</th>
+      <th>Статус</th>
+      <th>Приоритет</th>
+      <th>Теги</th>
+      <th>Архив</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tasks %}
+      {% include "task_row.html" %}
+    {% endfor %}
+  </tbody>
+</table>

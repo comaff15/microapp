@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Админка — Аудит</h1>
+
+  <div class="card">
+    <form class="row"
+          hx-get="/admin/audit"
+          hx-target="#audit-table"
+          hx-select="#audit-table"
+          hx-swap="outerHTML">
+      <div style="flex: 1; min-width: 260px;">
+        <label>Routing key (точное совпадение)</label>
+        <input name="routing_key" value="{{ routing_key or '' }}" placeholder="task.created" />
+      </div>
+      <div style="min-width: 140px;">
+        <label>Лимит</label>
+        <input name="limit" type="number" min="1" max="500" value="{{ limit }}" />
+      </div>
+      <div style="margin-top: 28px;">
+        <button class="primary" type="submit">Применить</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    {% include "admin_audit_table.html" %}
+  </div>
+{% endblock %}

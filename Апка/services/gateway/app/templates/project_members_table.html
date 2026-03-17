@@ -1,0 +1,42 @@
+<div id="members-table">
+  {% if members_error %}
+    <div class="alert danger">{{ members_error }}</div>
+  {% endif %}
+  <table>
+    <thead>
+      <tr>
+        <th>Пользователь</th>
+        <th>Роль</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in members %}
+        <tr>
+          <td><code>{{ m.user_email }}</code></td>
+          <td>
+            {% if m.role == 'owner' %}
+              <span class="badge primary">owner</span>
+            {% elif m.role == 'maintainer' %}
+              <span class="badge">maintainer</span>
+            {% else %}
+              <span class="badge">viewer</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="row">
+              <form hx-post="/projects/{{ project.id }}/members/transfer" hx-target="#members-table" hx-swap="outerHTML" style="margin:0">
+                <input type="hidden" name="new_owner_email" value="{{ m.user_email }}" />
+                <button class="primary" type="submit">Сделать владельцем</button>
+              </form>
+            <form hx-post="/projects/{{ project.id }}/members/remove" hx-target="#members-table" hx-swap="outerHTML" style="margin:0">
+              <input type="hidden" name="user_email" value="{{ m.user_email }}" />
+              <button class="danger" type="submit">Удалить</button>
+            </form>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

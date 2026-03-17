@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row" style="margin-top: 14px">
+    <div>
+      <h1 class="page-title" style="margin: 10px 2px 6px">Проект #{{ project.id }} — Участники</h1>
+      <p class="muted" style="margin: 0"><a href="/projects/{{ project.id }}">Назад к проекту</a></p>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="alert danger">{{ error }}</div>
+  {% endif %}
+
+  <div class="grid">
+    <div class="card">
+      <h2>Добавить участника</h2>
+      <form hx-post="/projects/{{ project.id }}/members" hx-target="#members-table" hx-swap="outerHTML">
+        <label>Email пользователя</label>
+        <input name="user_email" type="email" required placeholder="user@example.com" />
+
+        <label>Роль</label>
+        <select name="role">
+          <option value="viewer">viewer</option>
+          <option value="maintainer">maintainer</option>
+          <option value="owner">owner</option>
+        </select>
+
+        <div style="margin-top: 12px" class="row">
+          <button class="primary" type="submit">Добавить / обновить</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Список</h2>
+      {% include "project_members_table.html" %}
+    </div>
+  </div>
+{% endblock %}
